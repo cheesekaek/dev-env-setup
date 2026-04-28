@@ -1,0 +1,30 @@
+[INFO] Packages to be installed: git python3 python3-pip
+[INFO] git has already been installed.
+[INFO] python3 has already been installed.
+[INFO] python3-pip has already been installed.
+[WARNING] This directory already exists. Creating a new directory...
+[INFO] Cloning repository...
+Cloning into '/home/karthika/projects/dev-env-setup/test-123_2'...
+[INFO] Entering repo directory...
+[INFO] Detected a Node project. Installing dependencies...
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 351 packages, and audited 352 packages in 1m
+
+111 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+[INFO] Detected a Python project. Installing dependencies...
+The virtual environment was not created successfully because ensurepip is not
+available.  On Debian/Ubuntu systems, you need to install the python3-venv
+package using the following command.
+
+    apt install python3.12-venv
+
+You may need to use sudo with that command.  After installing the python3-venv
+package, recreate your virtual environment.
+
+Failing command: /home/karthika/projects/dev-env-setup/test-123_2/venv/bin/python3
+
+[ERROR] Failed to create virtual environment. Exiting...
