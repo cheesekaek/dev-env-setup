@@ -8,11 +8,11 @@ mkdir -p "$LOG_DIR"
 # basic syntax for date : date [OPTION]... [+FORMAT]
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="$LOG_DIR/$TIMESTAMP.log"
-# basic syntax: command | tee [OPTIONS] [FILE]
+# tee: terminal + file
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 # basic syntax for color : "\e[COLORm"
-if [ -t 2 ]; then # in terminal
+if [ -t 1 ]; then # in terminal
     RED="\e[31m"
     YELLOW="\e[33m"
     GREEN="\e[32m"
@@ -65,7 +65,7 @@ AUTO_RENAME=false # create repo even if dir already exists (default false)
 
 # check for url
 if [ -z "$1" ]; then
-    error "Usage: $0 <repo-url> [--rename]"
+    error "format: $0 repo-url [--rename]"
     exit 1
 fi
 
@@ -88,7 +88,7 @@ if [ -d "$REPO_PATH" ]; then
             ((COUNT++))
         done
     else 
-        error "Cannot clone repository as the directory already exists. Use --force to overwrite."
+        error "Cannot clone repository as the directory already exists. Use --rename to create a directory with the same name."
         exit 1
     fi
 
@@ -101,12 +101,16 @@ if ! git clone "$REPO_URL" "$REPO_PATH"; then
     exit 1
 fi
 
-cd "$REPO_PATH" || exit
+cd "$REPO_PATH" || exit 1
 info "Entering repo directory..."
 
 if [ -f "package.json" ]; then
     info "Detected a Node project. Installing dependencies..."
-    npm install
+    npm install || { 
+        error "Failed to install Node dependencies. Exiting..." 
+        exit 1
+    }
+    info "Node dependencies have been installed successfully."
 fi 
 
 if [ -f "requirements.txt" ]; then
@@ -132,6 +136,38 @@ if [ -f "requirements.txt" ]; then
     fi
 
     # install dependencies
-    python -m pip install --upgrade pip
-    python -m pip install -r requirements.txt
+    python -m pip install --upgrade pip || { 
+        error "Failed to upgrade pip. Exiting..." 
+        exit 1
+    }
+    python -m pip install -r requirements.txt || { 
+        error "Failed to install Python dependencies. Exiting..."
+        exit 1
+    }
+
+    info "Python dependencies have been installed successfully."
+fi
+
+# setting up mysql db
+DB_NAME="test_db"
+
+if [ -f "db.sql" ]; then
+    info "Detected a SQL file. Setting up MySQL database..."
+
+    if ! command -v mysql >/dev/null 2>&1; then
+        warn "MySQL server is not installed. Installing..."
+        sudo apt install -y mysql-server
+        sudo systemctl start mysql
+        sudo systemctl enable mysql
+    fi
+
+    # create db
+    sudo mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
+
+    if ! sudo mysql "$DB_NAME" < db.sql; then # import schema from repo
+        error "Failed to import database schema. Exiting..."
+        exit 1
+    fi
+
+    info "Database has been setup successfully."
 fi
