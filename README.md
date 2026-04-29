@@ -1,22 +1,26 @@
 ## Local Development Environment Setup
 A bash script I designed to simplify the process of setting up a development environment by
-provisioning a local development environment with packages, environment variables, repositories and test data, with just one command.
+provisioning a local development environment with packages, a cloned repository, and database, with just one command.
 
 ___
 
 ### Features
 * One-command setup
-* Automatic package installation
 * Logging system with timestamps
 * Color-coded terminal output
+* Automatic package installation
+* Clone repositories
+* Installs corresponding dependencies (currently only those in package.json and requirements.txt)
+* Sets up a MySQL database for an existing .sql file
 
 ___
 
 ### Project Structure
 ```
-.
+
 ├── logs/
 │   └── (generated log files)
+├── README.md
 ├── dev-setup.sh
 ├── packages.txt
 ```
@@ -39,11 +43,3 @@ chmod +x dev-setup.sh
 ```angular2html
 ./dev-setup.sh
 ```
-
----
-
-### Future Plans
-* Environment Configuration
-* Git Repo Setup
-* Database Setup
-* ...
